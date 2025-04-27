@@ -1,0 +1,51 @@
+name: Builds & Tests
+on:
+  pull_request:
+  push:
+jobs:
+  backend-build-test:
+    name: Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build
+        working-directory: back
+        run: mvn -B compile --file pom.xml
+
+      - name: Run Tests
+        working-directory: back
+        run: mvn -B test --file pom.xml
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "**/TEST-*.xml"
+        if: success() || failure()
+
+      - name: Upload Coverage Result
+        id: jacoco_reporter
+        uses: PavanMudigonda/jacoco-reporter@v5.0
+        with:
+          coverage_results_path: 'back/target/site/jacoco/jacoco.xml'
+          coverage_report_title: 'Backend coverage result details'
+          coverage_report_name: 'Backend coverage result details'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Coverage Summary
+        run: |
+          echo "| Outcome | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Coverage % | ${{ steps.jacoco_reporter.outputs.coverage_percentage }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| :x: Number of Lines Missed | ${{ steps.jacoco_reporter.outputs.missed_lines }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Total Number of Lines | ${{ steps.jacoco_reporter.outputs.total_lines }} |" >> $GITHUB_STEP_SUMMARY
+  
