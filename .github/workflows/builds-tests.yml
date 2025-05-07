@@ -1,7 +1,11 @@
 name: Builds & Tests
+
 on:
-  pull_request:
   push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   backend-build-test:
     name: Backend
@@ -48,4 +52,23 @@ jobs:
           echo "| :heavy_check_mark: Number of Lines Covered | ${{ steps.jacoco_reporter.outputs.covered_lines }} |" >> $GITHUB_STEP_SUMMARY
           echo "| :x: Number of Lines Missed | ${{ steps.jacoco_reporter.outputs.missed_lines }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Total Number of Lines | ${{ steps.jacoco_reporter.outputs.total_lines }} |" >> $GITHUB_STEP_SUMMARY
-  
+
+  frontend-build-test:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: front
+        run: npm ci
+
+      - name: Run Tests with coverage
+        working-directory: front
+        run: npm run test -- --browsers=ChromeHeadless --watch=false --code-coverage
