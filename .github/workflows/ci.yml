@@ -62,7 +62,7 @@ jobs:
         working-directory: ./back
         run: mvn verify
 
-      - name: Commit and push coverage reports
+       - name: Commit and push coverage reports
   env:
     PAT: ${{ secrets.PAT }}
   run: |
