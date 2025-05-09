@@ -63,16 +63,18 @@ jobs:
         run: mvn verify
 
       - name: Commit and push coverage reports
-        env:
-          PAT: ${{ secrets.PAT }}
-        run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
-          git remote set-url origin https://github.com/${{ github.repository }}
-          git add -f ./front/coverage/bobapp/lcov.info || echo "No lcov.info"
-          git add -f ./back/target/site/jacoco/jacoco.xml || echo "No jacoco.xml"
-          git commit -m "Add coverage reports [skip ci]" || echo "Nothing to commit"
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }} HEAD:main
+  env:
+    PAT: ${{ secrets.PAT }}
+  run: |
+    git config --global user.name 'github-actions'
+    git config --global user.email 'github-actions@github.com'
+    git remote set-url origin https://github.com/${{ github.repository }}
+    git pull --rebase origin main || echo "Nothing to rebase"
+    git add -f ./front/coverage/bobapp/lcov.info || echo "No lcov.info"
+    git add -f ./back/target/site/jacoco/jacoco.xml || echo "No jacoco.xml"
+    git commit -m "Add coverage reports [skip ci]" || echo "Nothing to commit"
+    git push https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }} HEAD:main
+
 
       - name: SonarCloud Scan (Backend)
         uses: SonarSource/sonarqube-scan-action@v1.0.0
