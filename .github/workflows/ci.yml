@@ -9,9 +9,9 @@ on:
       - main
 
 jobs:
-  build:
+  backend-build:
+    name: Backend Analysis
     runs-on: ubuntu-latest
-
     services:
       docker:
         image: docker:19.03.12
@@ -20,7 +20,6 @@ jobs:
           - 2375:2375
         env:
           DOCKER_TLS_CERTDIR: ""
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,9 +50,13 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install frontend dependencies and run tests
+      - name: Install frontend dependencies
         working-directory: ./front
-        run: npm ci && npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: ./front
+        run: npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
 
       - name: Build and verify backend with Maven
         working-directory: ./back
@@ -71,7 +74,7 @@ jobs:
           git commit -m "Add coverage reports [skip ci]" || echo "Nothing to commit"
           git push https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }} HEAD:main
 
-      - name: SonarCloud Scan
+      - name: SonarCloud Scan (Backend)
         uses: SonarSource/sonarqube-scan-action@v1.0.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -83,5 +86,31 @@ jobs:
             -Dsonar.tests=back/src/test
             -Dsonar.java.binaries=back/target/classes
             -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
-            -Dsonar.javascript.lcov.reportPaths=front/coverage/bobapp/lcov.info
             -X
+
+  frontend-build:
+    name: Frontend Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        working-directory: ./front
+        run: npm ci
+
+      - name: Run frontend tests with coverage
+        working-directory: ./front
+        run: npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
+
+      - name: SonarCloud Scan (Frontend)
+        uses: SonarSource/sonarqube-scan-action@v1.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: ./front
