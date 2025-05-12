@@ -13,15 +13,6 @@ jobs:
     name: Analyse SonarCloud + Tests (Frontend + Backend)
     runs-on: ubuntu-latest
 
-    services:
-      docker:
-        image: docker:19.03.12
-        options: --privileged
-        ports:
-          - 2375:2375
-        env:
-          DOCKER_TLS_CERTDIR: ""
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -61,7 +52,6 @@ jobs:
       - name: SonarCloud Scan - Projet global
         uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectBaseDir: .
           args: >
             -Dsonar.projectKey=edouard06_P10
             -Dsonar.organization=edouard06
