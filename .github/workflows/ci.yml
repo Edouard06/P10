@@ -36,6 +36,10 @@ jobs:
         working-directory: ./back
         run: mvn clean verify
 
+      - name: Copy dependencies for Sonar analysis
+        working-directory: ./back
+        run: mvn dependency:copy-dependencies
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -58,6 +62,7 @@ jobs:
             -Dsonar.sources=front/src/app,back/src/main
             -Dsonar.tests=front/src,back/src/test
             -Dsonar.java.binaries=back/target/classes
+            -Dsonar.java.libraries=back/target/dependency
             -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
             -Dsonar.exclusions=**/*.spec.ts,**/node_modules/**
