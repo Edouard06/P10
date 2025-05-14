@@ -28,26 +28,26 @@ jobs:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
           java-version: 17
-          
+
       - name: Cache SonarQube packages
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-          
+
       - name: Cache Maven packages
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -70,7 +70,7 @@ jobs:
           git add -f ./back/target/site/jacoco/jacoco.xml
           git commit -m "Add coverage reports [skip ci]"
           git push https://x-access-token:${{ secrets.PAT }}@github.com/edouard06/p10.git HEAD:main
-        
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
