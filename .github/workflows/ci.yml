@@ -82,3 +82,4 @@ jobs:
             -Dsonar.projectKey=edouard06_P10
             -Dsonar.organization=edouard06
             -X
+#test
