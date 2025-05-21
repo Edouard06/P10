@@ -66,11 +66,11 @@ jobs:
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
-          git remote set-url origin https://github.com/edouard06/p10.git
+          git remote set-url origin https://github.com/edouard06/P10.git
           git add -f ./front/coverage/lcov.info || echo "No frontend lcov.info found"
           git add -f ./back/target/site/jacoco/jacoco.xml || echo "No backend jacoco.xml found"
           git commit -m "Add coverage reports [skip ci]" || echo "No changes to commit"
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/edouard06/p10.git HEAD:main
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/edouard06/P10.git HEAD:main
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
@@ -78,8 +78,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           projectBaseDir: .
-          args: >
-            -Dsonar.projectKey=edouard06_P10
-            -Dsonar.organization=edouard06
-            -X
-#testtt
+        
